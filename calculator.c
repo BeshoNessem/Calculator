@@ -1,43 +1,74 @@
 #include <stdio.h>
+#include <string.h>
+
+#define MAX_LINE 256
 
 int main()
 {
-    double a, b, result;
-    char op;
+    char line[MAX_LINE];
 
     printf("Simple Calculator\n");
-    printf("Enter an expression (e.g. 3 + 4): ");
+    printf("Enter an expression (e.g. 3 + 4), or 'q' to quit.\n");
 
-    if (scanf("%lf %c %lf", &a, &op, &b) != 3)
+    while (1)
     {
-        printf("Invalid input.\n");
-        return 1;
-    }
+        double a, b, result;
+        char op;
+        char cmd[8];
 
-    switch (op)
-    {
-    case '+':
-        result = a + b;
-        break;
-    case '-':
-        result = a - b;
-        break;
-    case '*':
-        result = a * b;
-        break;
-    case '/':
-        if (b == 0)
+        printf("\n> ");
+
+        /* Read a whole line, so bad input never gets stuck in the buffer. */
+        if (fgets(line, MAX_LINE, stdin) == NULL)
         {
-            printf("Error: division by zero.\n");
-            return 1;
+            printf("\nBye.\n");
+            break;
         }
-        result = a / b;
-        break;
-    default:
-        printf("Error: unknown operator '%c'.\n", op);
-        return 1;
+
+        if (sscanf(line, "%7s", cmd) != 1)
+        {
+            continue; /* empty line: just ask again */
+        }
+
+        if (strcmp(cmd, "q") == 0 || strcmp(cmd, "quit") == 0 ||
+            strcmp(cmd, "exit") == 0)
+        {
+            printf("Bye.\n");
+            break;
+        }
+
+        if (sscanf(line, "%lf %c %lf", &a, &op, &b) != 3)
+        {
+            printf("Invalid input. Expected: <number> <operator> <number>\n");
+            continue;
+        }
+
+        switch (op)
+        {
+        case '+':
+            result = a + b;
+            break;
+        case '-':
+            result = a - b;
+            break;
+        case '*':
+            result = a * b;
+            break;
+        case '/':
+            if (b == 0)
+            {
+                printf("Error: division by zero.\n");
+                continue;
+            }
+            result = a / b;
+            break;
+        default:
+            printf("Error: unknown operator '%c'.\n", op);
+            continue;
+        }
+
+        printf("%g %c %g = %g\n", a, op, b, result);
     }
 
-    printf("%g %c %g = %g\n", a, op, b, result);
     return 0;
 }
